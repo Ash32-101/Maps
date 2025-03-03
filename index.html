@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Map-3301</title>
+    <style>
+        body {
+            margin: 0;
+            background: radial-gradient(circle, black, darkblue);
+            overflow: hidden;
+        }
+        canvas {
+            display: block;
+        }
+        .info-box {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="skyCanvas"></canvas>
+    <div id="infoBox" class="info-box"></div>
+    <script>
+        const canvas = document.getElementById("skyCanvas");
+        const ctx = canvas.getContext("2d");
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        const infoBox = document.getElementById("infoBox");
+
+        const planets = [
+            { name: "Mercury", x: 100, y: 200, color: "gray", fact: "Smallest planet in the Solar System." },
+            { name: "Venus", x: 200, y: 250, color: "yellow", fact: "Hottest planet due to greenhouse effect." },
+            { name: "Earth", x: 300, y: 300, color: "blue", fact: "Only known planet to support life." },
+            { name: "Mars", x: 400, y: 350, color: "red", fact: "Known as the Red Planet." },
+            { name: "Jupiter", x: 500, y: 400, color: "orange", fact: "Largest planet in the Solar System." },
+            { name: "Saturn", x: 600, y: 450, color: "goldenrod", fact: "Has the most extensive ring system." },
+            { name: "Uranus", x: 700, y: 500, color: "lightblue", fact: "Rotates on its side." },
+            { name: "Neptune", x: 800, y: 550, color: "purple", fact: "Nathalie, do your homework." }
+        ];
+
+        const constellations = [
+            { name: "Orion", points: [[50, 100], [150, 180], [250, 150], [200, 300], [100, 250]] },
+            { name: "Big Dipper", points: [[600, 150], [650, 200], [700, 180], [750, 160], [800, 100], [850, 120]] }
+        ];
+
+        function drawSky() {
+            ctx.fillStyle = "black";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function drawStars() {
+            for (let i = 0; i < 300; i++) {
+                ctx.fillStyle = "white";
+                ctx.beginPath();
+                ctx.arc(Math.random() * canvas.width, Math.random() * canvas.height, 2, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function drawPlanets() {
+            planets.forEach(planet => {
+                ctx.fillStyle = planet.color;
+                ctx.beginPath();
+                ctx.arc(planet.x, planet.y, 10, 0, Math.PI * 2);
+                ctx.fill();
+            });
+        }
+
+        function drawConstellations() {
+            ctx.strokeStyle = "white";
+            ctx.lineWidth = 1.5;
+            
+            constellations.forEach(constellation => {
+                ctx.beginPath();
+                constellation.points.forEach(([x, y], index) => {
+                    if (index === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                });
+                ctx.stroke();
+                
+                // Draw clickable points
+                constellation.points.forEach(([x, y]) => {
+                    ctx.fillStyle = "white";
+                    ctx.beginPath();
+                    ctx.arc(x, y, 4, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+            });
+        }
+
+        function handleClick(event) {
+            const { offsetX, offsetY } = event;
+            
+            // Check if clicking on a planet
+            planets.forEach(planet => {
+                const dx = offsetX - planet.x;
+                const dy = offsetY - planet.y;
+                if (Math.sqrt(dx * dx + dy * dy) < 10) {
+                    infoBox.style.left = `${offsetX}px`;
+                    infoBox.style.top = `${offsetY}px`;
+                    infoBox.innerHTML = `<strong>${planet.name}</strong><br>${planet.fact}`;
+                    infoBox.style.display = "block";
+                    return;
+                }
+            });
+            
+            // Check if clicking on a constellation
+            constellations.forEach(constellation => {
+                constellation.points.forEach(([x, y]) => {
+                    const dx = offsetX - x;
+                    const dy = offsetY - y;
+                    if (Math.sqrt(dx * dx + dy * dy) < 6) {
+                        infoBox.style.left = `${offsetX}px`;
+                        infoBox.style.top = `${offsetY}px`;
+                        infoBox.innerHTML = `<strong>${constellation.name}</strong>`;
+                        infoBox.style.display = "block";
+                    }
+                });
+            });
+        }
+
+        function hideInfoBox() {
+            infoBox.style.display = "none";
+        }
+
+        canvas.addEventListener("click", handleClick);
+        canvas.addEventListener("mouseleave", hideInfoBox);
+
+        function drawScene() {
+            drawSky();
+            drawStars();
+            drawConstellations();
+            drawPlanets();
+        }
+
+        drawScene();
+    </script>
+</body>
+</html>
